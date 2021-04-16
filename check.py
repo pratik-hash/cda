@@ -1,3 +1,4 @@
+from PIL import Image
 import pydeck as pdk
 from folium.plugins import HeatMapWithTime
 from branca.element import Figure
@@ -20,10 +21,13 @@ import geopandas as gpd
 import plotly.express as px
 
 
+file = "final_mrged"
+image = Image.open('coe1.png')
+st.image(image, width=180)
+
 st.write("""
 # Crime Data Analysis Of Odisha
 """)
-file = "final_mrged"
 
 
 @st.cache(suppress_st_warning=True)
