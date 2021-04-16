@@ -12,7 +12,7 @@ import json  # library to handle JSON files
 from geopy.geocoders import Nominatim
 # convert an address into latitude and longitude values
 import requests  # library to handle requests
-import folium  # map rendering library
+
 import streamlit as st  # creating an app
 from streamlit_folium import folium_static
 from shapely import wkt
@@ -21,15 +21,15 @@ import plotly.express as px
 
 
 st.write("""
-# Crime Data Analysis
+# Crime Data Analysis Of Odisha
 """)
-file = "Sll_final"
+file = "final_mrged"
 
 
 @st.cache(suppress_st_warning=True)
 def get_data(file):
     data = pd.read_csv(file)
-    data.drop(['Unnamed: 0', 'geometry'], axis=1, inplace=True)
+    data.drop(['Unnamed: 0'], axis=1, inplace=True)
     return data
 
 
@@ -37,15 +37,21 @@ data_sll = get_data(file)
 
 # df = st.cache(pd.read_csv)("Sll_final")
 # df.drop(['Unnamed: 0'], axis=1, inplace=True)
-is_check = st.checkbox("Display Data")
+is_check = st.checkbox("Display Whole Data")
+st.write(" ")
+st.write("👈 Select District & Type of Crime ")
+st.write(" ")
 if is_check:
     st.write(data_sll)
 district_sll = st.sidebar.multiselect(
     "Enter district name", data_sll['District'].unique())
-#st.write("Your input Districts", district)
+# st.write("Your input Districts", district)
 variables_sll = st.sidebar.multiselect(
     "Enter the type of crimes", data_sll.columns)
-#st.write("You selected these variables", variables)
+# st.write("You selected these variables", variables)
+
+baar_on = st.sidebar.multiselect(
+    "Input For Bar Graph", data_sll.columns)
 
 selected_district_data = data_sll[(data_sll['District'].isin(district_sll))]
 two_clubs_data = selected_district_data[variables_sll]
@@ -53,16 +59,18 @@ club_data_is_check = st.checkbox("Display the data of selected districts")
 if club_data_is_check:
     st.write(two_clubs_data)
 
+bar_data = selected_district_data[baar_on]
 
 if st.sidebar.checkbox("Show Analysis by State", True, key=2):
-    st.markdown("## **State level analysis**")
-    st.markdown("### Overall Confirmed, Active, Recovered and " +
-                "Deceased cases in %s yet" % (district_sll))
+    st.markdown("## **District Level Analysis**")
+    # st.markdown("#### Overall Confirmed, Active, Recovered and " +
+    # "Deceased cases in %s yet" % (district_sll))
+    st.write("👇 Uncheck For Bar Graph ")
     if not st.checkbox('Hide Graph', True, key=1):
         state_total_graph = px.bar(
-            two_clubs_data,
+            bar_data,
             x='District',
-            y='Total Cognizable SLL crimes',
+            y=baar_on,
             labels={'Number of cases': 'Number of cases in %s' % (
                 district_sll)},
             color='District')
@@ -75,11 +83,8 @@ data['geometry'] = data['geometry'].apply(wkt.loads)
 my_geo_df = gpd.GeoDataFrame(data, geometry='geometry', crs='epsg:4326')
 
 
-add_select = st.sidebar.selectbox(
-    "What data do you want to see?", ("OpenStreetMap", "Stamen Terrain", "Stamen Toner"))
-
 mymap = folium.Map(location=[20.509834585478302,
-                   84.60220092022696], zoom_start=7, tiles=add_select)
+                             84.60220092022696], zoom_start=7)
 folium.TileLayer('CartoDB positron', name="Light Map",
                  control=False).add_to(mymap)
 
@@ -95,9 +100,12 @@ mymap.choropleth(
     legend_name='Total Cognizable SLL crimes'
 )
 folium.LayerControl().add_to(mymap)
-folium_static(mymap)
+st.markdown("## **Map of Odisha for SLL Crimes**")
+if st.checkbox("Static Heat Map", False, key=3):
+    folium_static(mymap)
+
 # design for the app
-st.title('Map of Surabaya')
+#st.title('Map of Surabaya')
 
 
 def style_function(x): return {'fillColor': '#ffffff',
@@ -126,11 +134,15 @@ NIL = folium.features.GeoJson(
 mymap.add_child(NIL)
 mymap.keep_in_front(NIL)
 folium.LayerControl().add_to(mymap)
-folium_static(mymap)
+
+
+if st.checkbox("Interactive Heat Map", False, key=4):
+    folium_static(mymap)
+
 
 data_ipc = pd.read_csv('ipc')
 data_ipc.rename(columns={'Unnamed: 0': 'Id'}, inplace=True)
-#data.drop(columns=['Unnamed: 0'], inplace=True)
+# data.drop(columns=['Unnamed: 0'], inplace=True)
 data_ipc['geometry'] = data_ipc['geometry'].apply(wkt.loads)
 my_geo_df_ipc = gpd.GeoDataFrame(
     data_ipc, geometry='geometry', crs='epsg:4326')
@@ -153,9 +165,13 @@ mymap_ipc.choropleth(
     legend_name='Total Cognizable IPC crimes'
 )
 folium.LayerControl().add_to(mymap_ipc)
-folium_static(mymap_ipc)
+#
+# folium_static(mymap_ipc)
 
-#st.title('Map of Surabaya')
+# st.title('Map of Surabaya')
+st.markdown("## **Map of Odisha for IPC Crimes**")
+if st.checkbox("Static Heat Map", False, key=5):
+    folium_static(mymap_ipc)
 
 
 def style_function(x): return {'fillColor': '#ffffff',
@@ -184,7 +200,9 @@ NIL = folium.features.GeoJson(
 mymap_ipc.add_child(NIL)
 mymap_ipc.keep_in_front(NIL)
 folium.LayerControl().add_to(mymap_ipc)
-folium_static(mymap_ipc)
+# folium_static(mymap_ipc)
+if st.checkbox("Interactive Heat Map", False, key=6):
+    folium_static(mymap_ipc)
 
 
 data1 = pd.read_csv('new')
@@ -205,8 +223,10 @@ m7 = folium.Map(location=[20.44, 85.8327], zoom_start=10)
 fig7.add_child(m7)
 HeatMapWithTime(lat_long_list, radius=6.5, auto_play=True,
                 position='bottomright').add_to(m7)
+# folium_static(m7)
+st.markdown("## **Map of Bhubaneswar Crimes Analysis**")
+st.write("Animation Of Heatmap Showing Crime Location In Bhubaneswar On Hourly Basis")
 folium_static(m7)
-
 
 # Define a layer to display on a map
 
@@ -286,4 +306,6 @@ feature_assault.add_to(locs_map)
 feature_ua.add_to(locs_map)
 feature_ex.add_to(locs_map)
 folium.LayerControl(collapsed=False).add_to(locs_map)
+
+st.markdown("## **Geo Location Of Crimes In Bhubaneswar **")
 folium_static(locs_map)
