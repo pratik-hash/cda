@@ -150,10 +150,9 @@ data_ipc.rename(columns={'Unnamed: 0': 'Id'}, inplace=True)
 data_ipc['geometry'] = data_ipc['geometry'].apply(wkt.loads)
 my_geo_df_ipc = gpd.GeoDataFrame(
     data_ipc, geometry='geometry', crs='epsg:4326')
-add_select_ipc = st.sidebar.selectbox(
-    "What data do you want to see in Ipc?", ("OpenStreetMap", "Stamen Terrain", "Stamen Toner"))
+
 mymap_ipc = folium.Map(location=[20.509834585478302,
-                                 84.60220092022696], zoom_start=7, tiles=add_select_ipc)
+                                 84.60220092022696], zoom_start=7)
 folium.TileLayer('CartoDB positron', name="Light Map",
                  control=False).add_to(mymap_ipc)
 
