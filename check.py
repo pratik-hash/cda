@@ -228,7 +228,7 @@ fig7.add_child(m7)
 HeatMapWithTime(lat_long_list, radius=6.5, auto_play=True,
                 position='bottomright').add_to(m7)
 # folium_static(m7)
-st.markdown("## **Map of Bhubaneswar Crimes Analysis**")
+st.markdown("## **Map of Bhubaneswar Crime Analysis**")
 st.write("Animation Of Heatmap Showing Crime Location In Bhubaneswar On Hourly Basis")
 folium_static(m7)
 
